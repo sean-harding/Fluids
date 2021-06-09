@@ -37,33 +37,14 @@ class body:
             K4 = [f(var) for f in F]
             #Update the state. First list is the timestep, second list is the RK update. Does not yet update internally
             yield [self.state[0]+dx] + [x+dx*(k1+2*(k2+k3)+k4)/6 for (x,k1,k2,k3,k4) in zip(self.state[1:],K1,K2,K3,K4)],dx
-
-    def propagateMulti(self,bodies,dx):
-        '''Perform one RK4 update for a single body in motion around another'''
-        def forces(bodies):
-            '''Update the force on the body due to other bodies'''    
-            dSquared = lambda X:-1*sum(b.M()*sum((x0-x)**2 for x0,x in zip(X,b.getR())) for b in bodies)         
-            return [lambda var:var[k]*F for k in range(1,len(self.getR()+1))]       
-        F = [lambda var:var[2],lambda var: var[3]].extend(forces(bodies))
-        while True:
-            var = self.state[1:]  
-            K1 = [f(var) for f in F]
-            var = [s+dx*k/2 for (s,k) in zip(var,K1)]
-            K2 = [f(var) for f in F]
-            var = [s+dx*k/2 for (s,k) in zip(var,K2)]
-            K3 = [f(var) for f in F]
-            var = [s+dx*k for (s,k) in zip(var,K3)]
-            K4 = [f(var) for f in F]
-            #Update the state. First list is the timestep, second list is the RK update. Does not yet update internally
-            yield [self.state[0]+dx] + [x+dx*(k1+2*(k2+k3)+k4)/6 for (x,k1,k2,k3,k4) in zip(self.state[1:],K1,K2,K3,K4)],dx
 'Part 1: Simple orbit around a massive object'
 G = 1       #I have used units MG=1
 M = 1/G
 F = [lambda var:var[2],lambda var: var[3], lambda var:-G*M*var[0]/((var[0]**2+var[1]**2)**1.5),lambda var:-G*M*var[1]/((var[0]**2+var[1]**2)**1.5)]
 
-moon = body([0,0,7,0.36,0],1/G)         #Set up initial state of the moon. These parameters give a decently stable orbit
+moon = body([0,0,7,0.36,0],1/G,F)         #Set up initial state of the moon. These parameters give a decently stable orbit
 
-newState = moon.propagate(F,10**-4)     #newState is a "propagate" function. Calling next(newState) will generate the next state point
+newState = moon.propagate(F,10**-2)     #newState is a "propagate" function. Calling next(newState) will generate the next state point
 
 trajectory = []                         #Store all position co-ordinates. Could also choose to store only a few
 dev = []                                #Honestly, should probably use scipy arrays here
