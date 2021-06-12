@@ -1,13 +1,7 @@
 #ifndef _body
 #define _body
 
-/**Massive body class
-N.B. I have written setter methods instead of a constructor like body::body()
-because I want to initialize arrays of objects without setting initial states
-which should all be different.Ideally, I would have the functions which
-update the internal state as private functions and only call the constructor
-once
-**/
+//Massive body class
 typedef std::vector<double> (*vec2vec)(std::vector<double>);
 class body{
     public:
@@ -15,24 +9,18 @@ class body{
         std::vector<double> state;                  //State of system
         double M;
         //FUNCTIONS
-        body(std::vector<double> initState,double mass,int dim,int id);
+        body(std::vector<double> initState,double mass,int dim,int id); //Constructor
         std::vector<double> getR();                 //Return position
         std::vector<double> getV();                 //Return momentum
         double Ek();                                //Calculate kinetic energy
-        std::vector<double> propagate(float dt);  //RK4 method for central force problem. Propagates by a timestep dt
-        void force(std::vector<double> *pos,body *b,int dim,std::vector<double> *force);//Calculate force on body due to another
-        void RK4(std::vector<body*> bodies,double dt);
-        void update(bool save);    //Updates state
-        void update(double mass);   
+        void force(std::vector<double> *pos,body *b,int dim,std::vector<double> *force);    //Calculate force on body due to another
+        void RK4(std::vector<body*> bodies,double dt);  //Performs one RK4 update
+        void update(bool save);    //Updates state using the result of RK4 which is stored in a private variable until update
+        void update(double mass);  //Overloaded defintion of update which instead allows for variable mass 
     private:
-        int id;
-        int dim;                                  
-        std::vector<double> nextstate;                  //Updates mass
+        int id;     //Each object should have a unique identifier
+        int dim;    //Dimentionality of problem; dim=2 for in plane motion                              
+        std::vector<double> nextstate;                  //Result of RK4 stored here until update called
         std::vector<std::vector<double>> trajectory;   //Trajectory of the particle
 };
-
-//This lets me add forces together and return an evaluatable function object
-std::function<int(int,int)> addForces(int (*const fPtr)(int x),int (*const gPtr)(int y));
-void printPos(body bodies);
-void printPos_single(body *B);
 #endif
