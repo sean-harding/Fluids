@@ -21,7 +21,7 @@ body::body(std::vector<double> initState,double mass,const int dim,const int id)
 void body::update(bool save=false){
     this->state = this->nextstate;
     if(save ==true){
-        trajectory.push_back(this->nextstate);
+        trajectory.push_back(this->nextstate);  //Probably we only need to store a smaller number of coordinates than is generated
     }
 }
 void body::update(double newMass){
@@ -68,11 +68,25 @@ void body::RK4(std::vector<body*> bodies,double dt){
     }
     
     std::vector<double>  fstate;              //The updated final state
-    std::vector<double> *iptr = & istate;     //Intermediate RK4 states
-    std::vector<double*> fCalls;
-    int step = 1; //For testing purposes
+    std::vector<double> *iptr = & istate;     //Points to intermediate RK4 states
+    std::vector<double*> fCalls;              //Vector of pointers to the result of function calls used to update fstate
+    int step = 1;
+    
+    std::vector<double> cforce{0,0};        //To store the cumulative force on the body
+    std::vector<double> *f;
+    f = &cforce;
+    
+    for(int i =0; i<2*dim;i++){             //Pointers to the numbers which are used to update the state
+        double *p;
+        if(i<dim){
+            p = & istate[dim+i];}
+        else{
+            p = & cforce[i-dim];}
+        fCalls.push_back(p);
+    }
     
     while(step<=4){
+        *f = {0,0};
         //Initialize final state to to be the initial state
         if(step==1){
             for(int c=0;c<this->state.size();c++){
@@ -80,20 +94,9 @@ void body::RK4(std::vector<body*> bodies,double dt){
         }
 
         //Calculate cumulative force on object
-        std::vector<double> cforce{0,0};
-        std::vector<double> *c;
-        c = &cforce;
         for(int i=0;i<bodies.size();i++){
-            if(i!=this->id){
-            force(iptr,bodies[i],this->dim,c);}
-        }
-        for(int i =0; i<2*dim;i++){
-            double *p;
-            if(i<dim){
-                p = & istate[dim+i];}
-            else{
-                p = & cforce[i-dim];}
-            fCalls.push_back(p);
+            if(i!=this->id){                    //Prevents unphysical self-interaction
+            force(iptr,bodies[i],this->dim,f);} //Updates cforce by reference
         }
 
         //Update final state using function calls
