@@ -124,11 +124,6 @@ void body::RK4(std::vector<body*> bodies,double dt){
                     istate[c] +=dt*cforce[c-dim];}    
             }
         }
-        
-        if(step==1){
-        for(int k =0;k<istate.size();k++){
-            std::cout<<istate[k]<<std::endl;
-        }}
     step++;
     }
     fstate[0]+=dt;
@@ -141,7 +136,7 @@ int main(){
     double mass = 1.0;
     double timestep = pow(10,-2);
     auto s1 = std::vector<double> {0,0,0,0,0};       //Fixed mass
-    auto s2 = std::vector<double> {0,0,7,0.36,0};    //Orbiter
+    auto s2 = std::vector<double> {0,0,7,0.36,0};    //Orbiter. With same mass objects these parameters give a fairly stable elliptic orbit
     
     //body earth(s2,mass);
     std::vector<body*> planets;
@@ -153,7 +148,7 @@ int main(){
     planets[1]->update();
     }
     
-    for(int k=0;k<5;k++){
+    for(int k=0;k<5;k++){       //Printing out the state after one timestep to see if it agrees with the Python implementation
         std::cout<<(planets[1]->state)[k]<<std::endl;
     }   
     /*
@@ -164,7 +159,7 @@ int main(){
         }
         for(int k = 0;k<planets.size();k++){
             if(i%10==0){
-            planets[k]->update(true);}
+            planets[k]->update(true);}         //Save trajectory each 10 iterations
             else{
             planets[k]->update();
             }
