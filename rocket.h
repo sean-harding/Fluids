@@ -7,7 +7,7 @@ class body{
     public:
         //DATA
         std::vector<double> state;                  //State of system
-        double M;
+        double M;                                   //Mass
         //FUNCTIONS
         body(std::vector<double> initState,double mass,int dim,int id); //Constructor
         std::vector<double> getR();                 //Return position
