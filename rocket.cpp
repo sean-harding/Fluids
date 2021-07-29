@@ -37,7 +37,7 @@ std::vector<double> body::getV(){
 }
 double body::Ek(){
     double vSq = 0;
-    for(int i=0; i<=sizeof(this->getV()); i++){
+    for(int i=0; i<=(this->getV()).size(); i++){
         vSq+= this->getR()[i]*this->getV()[i];
     }
     return 0.5*this->M*vSq;
